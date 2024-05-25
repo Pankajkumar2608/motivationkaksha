@@ -176,7 +176,11 @@ def get_random_youtube_video():
 
 def scrape_josaa_cutoff(institute_type, institute_name):
     """Scrape the cutoff data from JoSAA website for a specific institute."""
-    driver = webdriver.Firefox()
+    options = webdriver.FirefoxOptions()
+    options.add_argument('--headless')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    driver = webdriver.Firefox(options=options)
     driver.get('https://josaa.admissions.nic.in/applicant/SeatAllotmentResult/CurrentORCR.aspx')
 
     try:
@@ -199,7 +203,7 @@ def scrape_josaa_cutoff(institute_type, institute_name):
 
         # Locate Institute Name dropdown by its ID and select the option
         select_inst_name = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_ContentPlaceHolder1_ddlInstitute_chosen"]/a')))
-        select_inst_name.click()
+        select_inst_name.click
         select_inst_name.send_keys(institute_name + Keys.ENTER)
         
         time.sleep(2)
