@@ -176,7 +176,7 @@ def get_random_youtube_video():
 
 def scrape_josaa_cutoff(institute_type, institute_name):
     """Scrape the cutoff data from JoSAA website for a specific institute."""
-    driver = webdriver.Firefox(executable_path=os.environ.get('C:\Users\ASUS\Desktop\bot\geckodriver.exe'))
+    driver = webdriver.Firefox()
     driver.get('https://josaa.admissions.nic.in/applicant/SeatAllotmentResult/CurrentORCR.aspx')
 
     try:
