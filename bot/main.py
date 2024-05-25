@@ -1,15 +1,11 @@
-from lib2to3.pgen2 import driver
 import time
-from selenium import webdriver 
-from selenium.webdriver.common.by import By 
-from selenium.webdriver.firefox.options import Options
+from selenium import webdriver
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from selenium.webdriver.support.ui import Select
-from bs4 import BeautifulSoup
-from reportlab.lib.pagesizes import letter , landscape
+from reportlab.lib.pagesizes import letter, landscape
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, PageBreak, Paragraph
 from reportlab.lib import colors
 import pandas as pd
@@ -32,99 +28,10 @@ USER_FILE = 'registered_users.txt'
 JOSAA_URL = 'https://josaa.admissions.nic.in/applicant/SeatAllotmentResult/CurrentORCR.aspx'
 
 # Enable logging
-IIT_LIST = ["IIT Bombay",
-    "IIT Delhi",
-    "IIT Madras",
-    "IIT Kanpur",
-    "IIT Kharagpur",
-    "IIT Roorkee",
-    "IIT Guwahati",
-    "IIT Hyderabad",
-    "IIT Ropar",
-    "IIT Bhubaneswar",
-    "IIT Gandhinagar",
-    "IIT Jodhpur",
-    "IIT Patna",
-    "IIT Indore",
-    "IIT Mandi",
-    "IIT (BHU) Varanasi",
-    "IIT Palakkad",
-    "IIT Tirupati",
-    "IIT Dhanbad",
-    "IIT Bhilai",
-    "IIT Goa",
-    "IIT Jammu",
-    "IIT Dharwad",
-    "IIT Bhagalpur",
-    "IIT Gandhinagar (Gandhinagar Campus)",
-    "IIT Jodhpur (Jodhpur Campus)",
-    "IIT Hyderabad (Kandi Campus)",
-    "IIT Ropar (Rupnagar Campus)",
-    "IIT Bhubaneswar (Bhubaneswar Campus)",
-    "IIT Patna (Patna Campus)",
-    "IIT Indore (Indore Campus)",
-    "IIT Mandi (Mandi Campus)",
-    "IIT (BHU) Varanasi (Varanasi Campus)",
-    "IIT Palakkad (Palakkad Campus)",
-    "IIT Tirupati (Tirupati Campus)",
-    "IIT Dhanbad (Dhanbad Campus)"]
-NIT_LIST =  ["NIT Trichy",
-    "NIT Warangal",
-    "NIT Surathkal",
-    "NIT Calicut",
-    "NIT Rourkela",
-    "NIT Kurukshetra",
-    "NIT Durgapur",
-    "NIT Allahabad",
-    "NIT Jamshedpur",
-    "NIT Bhopal",
-    "NIT Nagpur",
-    "NIT Jaipur",
-    "NIT Surat",
-    "NIT Patna",
-    "NIT Hamirpur",
-    "NIT Jalandhar",
-    "NIT Silchar",
-    "NIT Agartala",
-    "NIT Raipur",
-    "NIT Srinagar",
-    "NIT Meghalaya",
-    "NIT Manipur",
-    "NIT Mizoram",
-    "NIT Arunachal Pradesh",
-    "NIT Delhi",
-    "NIT Goa",
-    "NIT Puducherry",
-    "NIT Sikkim",
-    "NIT Uttarakhand",
-    "NIT Andhra Pradesh",
-    "NIT Nagaland",
-    "NIT Tripura"]
-IIIT_LIST = [
-    "IIIT Allahabad", "IIIT Chittoor", "IIIT Guwahati", "IIIT Vadodara", 
-    "IIIT Sri City", "IIIT Kota", "IIIT Kalyani", "IIIT Lucknow", 
-    "IIIT Dharwad", "IIIT Kottayam", "IIIT Pune", "IIIT Una", "IIIT Ranchi", 
-    "IIIT Nagpur", "IIIT Bhagalpur", "IIIT Bhopal", "IIIT Surat", "IIIT Manipur", 
-    "IIIT Sonepat", "IIIT Kurnool", "IIIT Tiruchirappalli", "IIIT Raichur", 
-    "IIIT Agartala", "IIIT Bhagalpur", "IIIT Bhopal", "IIIT Bhubaneswar", 
-    "IIIT Dharwad", "IIIT Jabalpur", "IIIT Kakinada", "IIIT Kalyani", 
-    "IIIT Kanchipuram", "IIIT Kottayam", "IIIT Kota", "IIIT Lucknow", 
-    "IIIT Manipur", "IIIT Nagpur", "IIIT Pune", "IIIT Ranchi", "IIIT Raichur", 
-    "IIIT Sricity", "IIIT Surat", "IIIT Una", "IIIT Vadodara"
-]
-GFTI_LIST = [
-    "Assam University, Silchar", "Birla Institute of Technology, Mesra", 
-    "Gurukula Kangri Vishwavidyalaya, Haridwar", "Indian Institute of Carpet Technology, Bhadohi", 
-    "Institute of Infrastructure, Technology, Research and Management, Ahmedabad", 
-    "Shri Mata Vaishno Devi University, Katra", "Institute of Technology, Guru Ghasidas Vishwavidyalaya, Bilaspur", 
-    "University Institute of Technology, HPU, Shimla", "University Institute of Engineering and Technology, Panjab University, Chandigarh", 
-    "National Institute of Electronics and Information Technology, Aurangabad", "Sant Longowal Institute of Engineering and Technology, Longowal", 
-    "School of Engineering and Technology, Mizoram University, Aizawl", "School of Engineering and Technology, Nagaland University, Dimapur", 
-    "Central Institute of Technology, Kokrajhar", "School of Engineering, Jadavpur University, Kolkata", 
-    "Institute of Chemical Technology, Mumbai", "National Institute of Foundry and Forge Technology, Ranchi", 
-    "Indian Institute of Food Processing Technology, Thanjavur", "National Institute of Advanced Manufacturing Technology, Ranchi", 
-    "Punjab Engineering College (PEC), Chandigarh"
-]
+IIT_LIST = ["IIT Bombay", "IIT Delhi", "IIT Madras", "IIT Kanpur", "IIT Kharagpur", "IIT Roorkee", "IIT Guwahati", "IIT Hyderabad", "IIT Ropar", "IIT Bhubaneswar", "IIT Gandhinagar", "IIT Jodhpur", "IIT Patna", "IIT Indore", "IIT Mandi", "IIT (BHU) Varanasi", "IIT Palakkad", "IIT Tirupati", "IIT Dhanbad", "IIT Bhilai", "IIT Goa", "IIT Jammu", "IIT Dharwad", "IIT Bhagalpur", "IIT Gandhinagar (Gandhinagar Campus)", "IIT Jodhpur (Jodhpur Campus)", "IIT Hyderabad (Kandi Campus)", "IIT Ropar (Rupnagar Campus)", "IIT Bhubaneswar (Bhubaneswar Campus)", "IIT Patna (Patna Campus)", "IIT Indore (Indore Campus)", "IIT Mandi (Mandi Campus)", "IIT (BHU) Varanasi (Varanasi Campus)", "IIT Palakkad (Palakkad Campus)", "IIT Tirupati (Tirupati Campus)", "IIT Dhanbad (Dhanbad Campus)"]
+NIT_LIST = ["NIT Trichy", "NIT Warangal", "NIT Surathkal", "NIT Calicut", "NIT Rourkela", "NIT Kurukshetra", "NIT Durgapur", "NIT Allahabad", "NIT Jamshedpur", "NIT Bhopal", "NIT Nagpur", "NIT Jaipur", "NIT Surat", "NIT Patna", "NIT Hamirpur", "NIT Jalandhar", "NIT Silchar", "NIT Agartala", "NIT Raipur", "NIT Srinagar", "NIT Meghalaya", "NIT Manipur", "NIT Mizoram", "NIT Arunachal Pradesh", "NIT Delhi", "NIT Goa", "NIT Puducherry", "NIT Sikkim", "NIT Uttarakhand", "NIT Andhra Pradesh", "NIT Nagaland", "NIT Tripura"]
+IIIT_LIST = ["IIIT Allahabad", "IIIT Chittoor", "IIIT Guwahati", "IIIT Vadodara", "IIIT Sri City", "IIIT Kota", "IIIT Kalyani", "IIIT Lucknow", "IIIT Dharwad", "IIIT Kottayam", "IIIT Pune", "IIIT Una", "IIIT Ranchi", "IIIT Nagpur", "IIIT Bhagalpur", "IIIT Bhopal", "IIIT Surat", "IIIT Manipur", "IIIT Sonepat", "IIIT Kurnool", "IIIT Tiruchirappalli", "IIIT Raichur", "IIIT Agartala", "IIIT Bhagalpur", "IIIT Bhopal", "IIIT Bhubaneswar", "IIIT Dharwad", "IIIT Jabalpur", "IIIT Kakinada", "IIIT Kalyani", "IIIT Kanchipuram", "IIIT Kottayam", "IIIT Kota", "IIIT Lucknow", "IIIT Manipur", "IIIT Nagpur", "IIIT Pune", "IIIT Ranchi", "IIIT Raichur", "IIIT Sricity", "IIIT Surat", "IIIT Una", "IIIT Vadodara"]
+GFTI_LIST = ["Assam University, Silchar", "Birla Institute of Technology, Mesra", "Gurukula Kangri Vishwavidyalaya, Haridwar", "Indian Institute of Carpet Technology, Bhadohi", "Institute of Infrastructure, Technology, Research and Management, Ahmedabad", "Shri Mata Vaishno Devi University, Katra", "Institute of Technology, Guru Ghasidas Vishwavidyalaya, Bilaspur", "University Institute of Technology, HPU, Shimla", "University Institute of Engineering and Technology, Panjab University, Chandigarh", "National Institute of Electronics and Information Technology, Aurangabad", "Sant Longowal Institute of Engineering and Technology, Longowal", "School of Engineering and Technology, Mizoram University, Aizawl", "School of Engineering and Technology, Nagaland University, Dimapur", "Central Institute of Technology, Kokrajhar", "School of Engineering, Jadavpur University, Kolkata", "Institute of Chemical Technology, Mumbai", "National Institute of Foundry and Forge Technology, Ranchi", "Indian Institute of Food Processing Technology, Thanjavur", "National Institute of Advanced Manufacturing Technology, Ranchi", "Punjab Engineering College (PEC), Chandigarh"]
 
 # Enable logging
 logging.basicConfig(
@@ -149,10 +56,10 @@ registered_users = load_registered_users()
 
 def register(update: Update, context: CallbackContext) -> None:
     """Register the user."""
-    user_id = update.message.from_user.id
+    user_id = update.effective_user.id
     if user_id not in registered_users:
-        user_first_name = update.message.from_user.first_name
-        user_username = update.message.from_user.username
+        user_first_name = update.effective_user.first_name
+        user_username = update.effective_user.username
         registered_users.add(user_id)
         save_registered_user(user_id)
         update.message.reply_text(f"Registered successfully!\nName: {user_first_name}\nTelegram ID: {user_id}\nUsername: @{user_username}")
@@ -162,7 +69,7 @@ def register(update: Update, context: CallbackContext) -> None:
 
 def start(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /start is issued."""
-    user_id = update.message.from_user.id
+    user_id = update.effective_user.id
     if user_id in registered_users:
         show_main_menu(update.message)
     else:
@@ -176,10 +83,10 @@ def start(update: Update, context: CallbackContext) -> None:
             reply_markup=reply_markup,
             parse_mode=ParseMode.MARKDOWN
         )
+
 def user_count(update: Update, context: CallbackContext) -> None:
     """Show the number of registered users."""
     update.message.reply_text(f"There are {len(registered_users)} users registered on this bot.")
-    
 
 def show_main_menu(message):
     keyboard = [
@@ -254,7 +161,6 @@ def send_college_buttons(query, college_list, prefix):
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"Select a {prefix}:", reply_markup=reply_markup)
 
-
 def get_random_youtube_video():
     youtube = build('youtube', 'v3', developerKey=API_KEY)
     request = youtube.search().list(
@@ -276,9 +182,9 @@ def scrape_josaa_cutoff(institute_type, institute_name):
     try:
         wait = WebDriverWait(driver, 10)
 
-        select_round = driver.find_element(By.XPATH,'//*[@id="ctl00_ContentPlaceHolder1_ddlroundno_chosen"]/a')
+        select_round = driver.find_element(By.XPATH, '//*[@id="ctl00_ContentPlaceHolder1_ddlroundno_chosen"]/a')
         select_round.click()
-        select_round.send_keys('6' + Keys.ENTER )
+        select_round.send_keys('6' + Keys.ENTER)
         
         time.sleep(2)
 
@@ -300,7 +206,7 @@ def scrape_josaa_cutoff(institute_type, institute_name):
 
 
         # Locate Academic Program dropdown by its ID and select the option
-        select_program = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_ContentPlaceHolder1_ddlBranch_chosen"]/a')))
+        select_program = wait.until(EC.presence_of_element_located((By.XPATH,'//*[@id="ctl00_ContentPlaceHolder1_ddlBranch_chosen"]/a')))
         driver.execute_script("arguments[0].click();", select_program)
         select_program.send_keys("A" + Keys.ENTER)
 
@@ -341,7 +247,7 @@ def scrape_josaa_cutoff(institute_type, institute_name):
     custom_height = 1.5 * letter[0]  # Height in landscape orientation
     custom_pagesize = (custom_width, custom_height)
 
-    doc = SimpleDocTemplate("josaa_cutoff.pdf", pagesize= custom_pagesize )
+    doc = SimpleDocTemplate("josaa_cutoff.pdf", pagesize=custom_pagesize)
     elements = []
 
     header_style = ParagraphStyle(name='Header', parent=None, fontSize=14, leading=16, textColor=colors.white, backColor=colors.grey, alignment=1, spaceAfter=12)
