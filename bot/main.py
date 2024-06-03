@@ -31,6 +31,7 @@ JOSAA_URL = 'https://josaa.admissions.nic.in/applicant/SeatAllotmentResult/Curre
 IIT_LIST = ["IIT Bombay", "IIT Delhi", "IIT Madras", "IIT Kanpur", "IIT Kharagpur", "IIT Roorkee", "IIT Guwahati", "IIT Hyderabad", "IIT Ropar", "IIT Bhubaneswar", "IIT Gandhinagar", "IIT Jodhpur", "IIT Patna", "IIT Indore", "IIT Mandi", "IIT (BHU) Varanasi", "IIT Palakkad", "IIT Tirupati", "IIT Dhanbad", "IIT Bhilai", "IIT Goa", "IIT Jammu", "IIT Dharwad", "IIT Bhagalpur", "IIT Gandhinagar (Gandhinagar Campus)", "IIT Jodhpur (Jodhpur Campus)", "IIT Hyderabad (Kandi Campus)", "IIT Ropar (Rupnagar Campus)", "IIT Bhubaneswar (Bhubaneswar Campus)", "IIT Patna (Patna Campus)", "IIT Indore (Indore Campus)", "IIT Mandi (Mandi Campus)", "IIT (BHU) Varanasi (Varanasi Campus)", "IIT Palakkad (Palakkad Campus)", "IIT Tirupati (Tirupati Campus)", "IIT Dhanbad (Dhanbad Campus)"]
 NIT_LIST = ["NIT Trichy", "NIT Warangal", "NIT Surathkal", "NIT Calicut", "NIT Rourkela", "NIT Kurukshetra", "NIT Durgapur", "NIT Allahabad", "NIT Jamshedpur", "NIT Bhopal", "NIT Nagpur", "NIT Jaipur", "NIT Surat", "NIT Patna", "NIT Hamirpur", "NIT Jalandhar", "NIT Silchar", "NIT Agartala", "NIT Raipur", "NIT Srinagar", "NIT Meghalaya", "NIT Manipur", "NIT Mizoram", "NIT Arunachal Pradesh", "NIT Delhi", "NIT Goa", "NIT Puducherry", "NIT Sikkim", "NIT Uttarakhand", "NIT Andhra Pradesh", "NIT Nagaland", "NIT Tripura"]
 IIIT_LIST = ["IIIT Allahabad", "IIIT Chittoor", "IIIT Guwahati", "IIIT Vadodara", "IIIT Sri City", "IIIT Kota", "IIIT Kalyani", "IIIT Lucknow", "IIIT Dharwad", "IIIT Kottayam", "IIIT Pune", "IIIT Una", "IIIT Ranchi", "IIIT Nagpur", "IIIT Bhagalpur", "IIIT Bhopal", "IIIT Surat", "IIIT Manipur", "IIIT Sonepat", "IIIT Kurnool", "IIIT Tiruchirappalli", "IIIT Raichur", "IIIT Agartala", "IIIT Bhagalpur", "IIIT Bhopal", "IIIT Bhubaneswar", "IIIT Dharwad", "IIIT Jabalpur", "IIIT Kakinada", "IIIT Kalyani", "IIIT Kanchipuram", "IIIT Kottayam", "IIIT Kota", "IIIT Lucknow", "IIIT Manipur", "IIIT Nagpur", "IIIT Pune", "IIIT Ranchi", "IIIT Raichur", "IIIT Sricity", "IIIT Surat", "IIIT Una", "IIIT Vadodara"]
+
 GFTI_LIST = ["Assam University, Silchar", "Birla Institute of Technology, Mesra", "Gurukula Kangri Vishwavidyalaya, Haridwar", "Indian Institute of Carpet Technology, Bhadohi", "Institute of Infrastructure, Technology, Research and Management, Ahmedabad", "Shri Mata Vaishno Devi University, Katra", "Institute of Technology, Guru Ghasidas Vishwavidyalaya, Bilaspur", "University Institute of Technology, HPU, Shimla", "University Institute of Engineering and Technology, Panjab University, Chandigarh", "National Institute of Electronics and Information Technology, Aurangabad", "Sant Longowal Institute of Engineering and Technology, Longowal", "School of Engineering and Technology, Mizoram University, Aizawl", "School of Engineering and Technology, Nagaland University, Dimapur", "Central Institute of Technology, Kokrajhar", "School of Engineering and Technology, Jadavpur University, Kolkata", "Institute of Chemical Technology, Mumbai", "National Institute of Foundry and Forge Technology, Ranchi", "Indian Institute of Food Processing Technology, Thanjavur", "National Institute of Advanced Manufacturing Technology, Ranchi", "Punjab Engineering College (PEC), Chandigarh"]
 
 # Enable logging
@@ -62,10 +63,24 @@ async def register(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         user_username = update.effective_user.username
         registered_users.add(user_id)
         save_registered_user(user_id)
-        await update.message.reply_text(f"Registered successfully!\nName: {user_first_name}\nTelegram ID: {user_id}\nUsername: @{user_username}")
+
+        # Create the registration message using HTML formatting
+        register_msg = f"""
+<b>✅ Registered successfully!</b>
+
+Name: {user_first_name}
+Telegram ID: <code>{user_id}</code>
+Username: @{user_username}
+
+There are <b>{len(registered_users)}</b> users registered on this bot.
+"""
+        keyboard = [[InlineKeyboardButton("Back to Main Menu", callback_data='back')]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
+        await update.message.reply_text(register_msg, parse_mode='HTML', reply_markup=reply_markup)
         await show_main_menu(update.message)
     else:
-        await update.message.reply_text("You are already registered!")
+        await update.message.reply_text("❗️ <b>You are already registered!</b>", parse_mode='HTML')
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /start is issued."""
@@ -74,30 +89,31 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await show_main_menu(update.message)
     else:
         keyboard = [
-            [InlineKeyboardButton("Register", callback_data='register')]
+            [InlineKeyboardButton("🔑 Register", callback_data='register')]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         
         await update.message.reply_text(
-            '*Hey! Welcome to Motivation Kaksha Bot!* Before we proceed, let\'s register first.',
+            '👋 *Hey! Welcome to Motivation Kaksha Bot!* Before we proceed, let\'s register first.',
             reply_markup=reply_markup,
             parse_mode='Markdown'
         )
 
 async def user_count(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Show the number of registered users."""
-    await update.message.reply_text(f"There are {len(registered_users)} users registered on this bot.")
+    await update.message.reply_text(f"🙋‍♂️ There are {len(registered_users)} users registered on this bot.")
 
 async def show_main_menu(message):
     keyboard = [
-        [InlineKeyboardButton("Motivation", callback_data='motivation')],
-        [InlineKeyboardButton("IIT OCR", callback_data='iit')],
-        [InlineKeyboardButton("NIT OCR", callback_data='nit')],
-        [InlineKeyboardButton("IIIT OCR", callback_data='iiit')],
-        [InlineKeyboardButton("GFTI OCR", callback_data='gfti')]
+        [InlineKeyboardButton("💪 Motivation", callback_data='motivation')],
+        [InlineKeyboardButton("🎓 IIT OCR", callback_data='iit')],
+        [InlineKeyboardButton("🏫 NIT OCR", callback_data='nit')],
+        [InlineKeyboardButton("🏢 IIIT OCR", callback_data='iiit')],
+        [InlineKeyboardButton("🏭 GFTI OCR", callback_data='gfti')],
+        [InlineKeyboardButton("❓ Help", callback_data='help')]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    await message.reply_text('Choose an option:', reply_markup=reply_markup)
+    await message.reply_text('*Choose an option:*', reply_markup=reply_markup, parse_mode='Markdown')
 
 async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
@@ -107,16 +123,34 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_username = query.from_user.username
 
     if query.data == 'register':
-        registered_users.add(user_id)
-        save_registered_user(user_id)
-        await query.edit_message_text(text=f"Name: {user_first_name}\nTelegram ID: {user_id}\nUsername: @{user_username}\n There are {len(registered_users)} users registered on this bot.")
-        await query.message.reply_text(f"Welcome to the Motivation Kaksha Bot, {user_first_name}!")
-        await show_main_menu(query.message)
+        if user_id not in registered_users:
+            registered_users.add(user_id)
+            save_registered_user(user_id)
+
+            # Create the registration message using HTML formatting
+            register_msg = f"""
+<b>✅ Registered successfully!</b>
+
+Name: {user_first_name}
+Telegram ID: <code>{user_id}</code>
+Username: @{user_username}
+
+There are <b>{len(registered_users)}</b> users registered on this bot.
+"""
+            keyboard = [[InlineKeyboardButton("Back to Main Menu", callback_data='back')]]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+
+            await query.message.reply_text(register_msg, parse_mode='HTML', reply_markup=reply_markup)
+            await show_main_menu(query.message)
+        else:
+            await query.message.reply_text("❗️ <b>You are already registered!</b>", parse_mode='HTML')
+    # Rest of the code remains the same
+    
     elif query.data == 'motivation':
-        await query.edit_message_text(text="Processing your request, please wait...")
+        await query.edit_message_text(text="🔍 Processing your request, please wait...")
         video_link = get_random_youtube_video()
         await query.edit_message_text(
-            text=f"Here is a motivational video for you: {video_link}",
+            text=f"🎥 Here is a motivational video for you: {video_link}",
             parse_mode='Markdown'
         )
         await show_main_menu(query.message)
@@ -138,13 +172,13 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         elif query.data.startswith('GFTI_'):
             institute_type = 'Government Funded Technical Institutions '
         # Display a message to the user while the data is being scraped
-        await query.edit_message_text(text="Processing your request, please wait... Till subcribe our yt channel https://youtube.com/@motivationkaksha?si=LXVF0hgRihCFdJcW")
+        await query.edit_message_text(text="🔍 Processing your request, please wait... 🔔 Don't forget to subscribe our YouTube channel: https://youtube.com/@motivationkaksha?si=LXVF0hgRihCFdJcW")
         pdf_data = await scrape_josaa_cutoff(institute_type, institute_name)
         if pdf_data:
             document = InputFile(BytesIO(pdf_data), filename="josaa_cutoff.pdf")
             await query.message.reply_document(document)
         else:
-            await query.edit_message_text(text=f"Sorry, no data was found for {institute_type} - {institute_name}. Please try again later.")
+            await query.edit_message_text(text=f"❌ Sorry, no data was found for {institute_type} - {institute_name}. Please try again later.")
         await show_main_menu(query.message)
 
 async def send_college_buttons(query, college_list, prefix):
@@ -156,9 +190,9 @@ async def send_college_buttons(query, college_list, prefix):
             keyboard.append([InlineKeyboardButton(college, callback_data=callback_data)])
         else:
             keyboard.append([InlineKeyboardButton(college, callback_data=f"{prefix}_{college}")])
-    keyboard.append([InlineKeyboardButton("Back", callback_data='back')])
+    keyboard.append([InlineKeyboardButton("⬅️ Back", callback_data='back')])
     reply_markup = InlineKeyboardMarkup(keyboard)
-    await query.edit_message_text(text=f"Select a {prefix}:", reply_markup=reply_markup)
+    await query.edit_message_text(text=f"🏫 Select a {prefix}:", reply_markup=reply_markup)
 
 def get_random_youtube_video():
     youtube = build('youtube', 'v3', developerKey=API_KEY)
@@ -270,8 +304,9 @@ async def scrape_josaa_cutoff(institute_type, institute_name):
         elements = []
 
         header_style = ParagraphStyle(name='Header', parent=None, fontSize=14, leading=16, textColor=colors.white, backColor=colors.grey, alignment=1, spaceAfter=12)
-        header = Paragraph("JOSAA Cutoff", header_style)
+        header = Paragraph("🎓 JOSAA Cutoff", header_style)
         elements.append(header)
+
 
         table_data = [df.columns.tolist()] + df.values.tolist()
         table = Table(table_data)
@@ -289,7 +324,7 @@ async def scrape_josaa_cutoff(institute_type, institute_name):
         elements.append(table)
         styles = getSampleStyleSheet()
         watermark_style = ParagraphStyle(name='Watermark', parent=styles['BodyText'], fontSize=50, leading=50, textColor=colors.grey, alignment=1)
-        watermark = Paragraph("Motivation Kaksha", watermark_style)
+        watermark = Paragraph("🏫 Motivation Kaksha", watermark_style)
         elements.append(watermark)
 
         doc.build(elements)
@@ -303,18 +338,35 @@ async def get_josaa_cutoff(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     institute_name = "IIT Bombay"
     
     # Display a message to the user while the data is being scraped
-    await update.message.reply_text(text="Processing your request, please wait...")
+    await update.message.reply_text(text="🔍 Processing your request, please wait...")
     
     pdf_data = await scrape_josaa_cutoff(institute_type, institute_name)
     if pdf_data:
         document = InputFile(BytesIO(pdf_data), filename="josaa_cutoff.pdf")
         await update.message.reply_document(document)
     else:
-        await update.message.reply_text(text=f"Sorry, no data was found for {institute_type} - {institute_name}. Please try again later.")
+        await update.message.reply_text(text=f"❌ Sorry, no data was found for {institute_type} - {institute_name}. Please try again later.")
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /help is issued."""
-    await update.message.reply_text('This bot helps you get the JOSAA cutoff data. Use the buttons to navigate through the options.')
+    help_text = """
+🤖 *Motivation Kaksha Bot*
+
+This bot helps you get the JOSAA cutoff data. Here's how you can use it:
+
+1. Use the /start command to get started.
+2. Click on the buttons to navigate through the options:
+   - 💪 *Motivation*: Get motivational content.
+   - 🎓 *IIT OCR*: Get the JOSAA cutoff data for IITs.
+   - 🏫 *NIT OCR*: Get the JOSAA cutoff data for NITs.
+   - 🏢 *IIIT OCR*: Get the JOSAA cutoff data for IIITs.
+   - 🏭 *GFTI OCR*: Get the JOSAA cutoff data for GFTIs.
+3. The bot will provide the cutoff data in a PDF format.
+4. If you have any issues or need further assistance, use the /help command.
+
+*Note: This bot can be used in both private chats and groups. However, in groups, you need to be an admin to use the bot.*
+    """
+    await update.message.reply_text(help_text, parse_mode='Markdown')
 
 def main() -> None:
     """Start the bot."""
@@ -332,3 +384,4 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+        
