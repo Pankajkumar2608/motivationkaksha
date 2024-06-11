@@ -5,7 +5,7 @@ FROM python:3.12
 RUN apt-get update && apt-get install -y wget unzip
 
 # Install Firefox
-RUN apt-get update && apt-get install -y firefox-esr
+RUN apt-get update && apt-get install -y firefox
 
 # Download GeckoDriver
 RUN wget https://github.com/mozilla/geckodriver/releases/download/v0.30.0/geckodriver-v0.30.0-linux64.tar.gz -P /tmp && \
