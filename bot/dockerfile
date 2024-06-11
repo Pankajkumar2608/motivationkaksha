@@ -1,3 +1,6 @@
+# Use an official Python runtime as a parent image
+FROM python:3.12
+
 # Install wget, unzip, and other necessary packages
 RUN apt-get update && apt-get install -y wget unzip
 
@@ -13,3 +16,21 @@ RUN wget https://github.com/mozilla/geckodriver/releases/download/v0.30.0/geckod
 ENV PATH="/usr/local/bin:${PATH}"
 ENV GECKODRIVER_PATH="/usr/local/bin/geckodriver"
 ENV MOZ_HEADLESS=1
+
+# Set the working directory to /app
+WORKDIR /app
+
+# Copy the requirements file into the container
+COPY requirements.txt .
+
+# Install the Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the application code into the container
+COPY . .
+
+# Expose the port that the app will run on
+EXPOSE 8080
+
+# Run the Selenium script
+CMD ["python", "main.py"]
