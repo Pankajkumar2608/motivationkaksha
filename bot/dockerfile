@@ -1,0 +1,15 @@
+# Install wget, unzip, and other necessary packages
+RUN apt-get update && apt-get install -y wget unzip
+
+# Install Firefox
+RUN apt-get update && apt-get install -y firefox-esr
+
+# Download GeckoDriver
+RUN wget https://github.com/mozilla/geckodriver/releases/download/v0.30.0/geckodriver-v0.30.0-linux64.tar.gz -P /tmp && \
+    tar -xzf /tmp/geckodriver-v0.30.0-linux64.tar.gz -C /usr/local/bin/ && \
+    rm /tmp/geckodriver-v0.30.0-linux64.tar.gz
+
+# Set environment variables for GeckoDriver and Firefox
+ENV PATH="/usr/local/bin:${PATH}"
+ENV GECKODRIVER_PATH="/usr/local/bin/geckodriver"
+ENV MOZ_HEADLESS=1
