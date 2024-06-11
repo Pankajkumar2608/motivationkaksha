@@ -19,8 +19,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.service import Service as ChromeService
+from webdriver_manager.firefox import GeckoDriverManager
+from selenium.webdriver.firefox.service import Service as FirefoxService
+#from webdriver_manager.chrome import ChromeDriverManager
+#from selenium.webdriver.chrome.service import Service as ChromeService
 
 # Replace these with your actual data
 API_KEY = 'AIzaSyD8wT7rh4xYFpCVj__nCp_sNrPBRYpoGaw'
@@ -215,12 +217,17 @@ async def scrape_josaa_cutoff(institute_type, institute_name):
     if cache_key in cache:
         return cache[cache_key]
 
-    chrome_options = webdriver.ChromeOptions()
-    chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--no-sandbox")
-    driver = webdriver.Chrome()
+    #chrome_options = webdriver.ChromeOptions()
+    #chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+    #chrome_options.add_argument("--headless")
+    #chrome_options.add_argument("--disable-dev-shm-usage")
+    #chrome_options.add_argument("--no-sandbox")
+    #driver = webdriver.Chrome()
+    options = webdriver.FirefoxOptions()
+    # Remove the '--headless' argument to run the browser in visible mode
+    options.add_argument('--headless')
+    service = FirefoxService(executable_path=GeckoDriverManager().install())
+    driver = webdriver.Firefox(service=service, options=options)
     driver.get(JOSAA_URL)
 
     try:
