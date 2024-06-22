@@ -20,9 +20,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from webdriver_manager.firefox import GeckoDriverManager
-from selenium.webdriver.firefox.service import Service as FirefoxService
-#from webdriver_manager.chrome import ChromeDriverManager
-#from selenium.webdriver.chrome.service import Service as ChromeService
+from webdriver_manager.firefox.service import Service as FirefoxService
 
 # Replace these with your actual data
 API_KEY = 'AIzaSyD8wT7rh4xYFpCVj__nCp_sNrPBRYpoGaw'
@@ -30,6 +28,7 @@ API_KEY = 'AIzaSyD8wT7rh4xYFpCVj__nCp_sNrPBRYpoGaw'
 USER_FILE = 'registered_users.txt'
 CHANNEL_ID = '-1002244117290'
 JOSAA_URL = 'https://josaa.admissions.nic.in/applicant/seatmatrix/openingclosingrankarchieve.aspx'
+MOTIVATIONKAKSHA_URL = 'https://motivationkaksha-website-2216612a3de0.herokuapp.com'
 
 # Create a cache dictionary
 cache = {}
@@ -159,167 +158,36 @@ There are <b>{len(registered_users)}</b> users registered on this bot.
         )
         await show_main_menu(query.message)
     elif query.data in ['iit', 'nit', 'iiit', 'gfti']:
-        await send_college_buttons(query, IIT_LIST if query.data == 'iit' else
-                                           NIT_LIST if query.data == 'nit' else
-                                           IIIT_LIST if query.data == 'iiit' else
-                                           GFTI_LIST, query.data.upper())
+        if query.data == 'iit':
+            url = MOTIVATIONKAKSHA_URL + '/iit'
+        elif query.data == 'nit':
+            url = MOTIVATIONKAKSHA_URL + '/nit'
+        elif query.data == 'iiit':
+            url = MOTIVATIONKAKSHA_URL + '/iiit'
+        elif query.data == 'gfti':
+            url = MOTIVATIONKAKSHA_URL + '/gfti'
+        await query.edit_message_text(text=f"Checkout cutoff on this website: {url}")
+        await show_main_menu(query.message)
     elif query.data == 'back':
         await show_main_menu(query.message)
     else:
-        institute_name = query.data.split('_')
-        if query.data.startswith('IIT_'):
-            institute_type = 'Indian Institute of Technology'
-        elif query.data.startswith('NIT_'):
-            institute_type = 'National Institute of Technology'
-        elif query.data.startswith('IIIT_'):
-            institute_type = 'Indian Institute of Information Technology'
-        elif query.data.startswith('GFTI_'):
-            institute_type = 'Government Funded Technical Institutions '
-        # Display a message to the user while the data is being scraped
-        await query.edit_message_text(text="🔍 Processing your request, please wait... 🔔 Don't forget to subscribe our YouTube channel: https://youtube.com/@motivationkaksha?si=LXVF0hgRihCFdJcW")
-        csv_data = await asyncio.create_task(scrape_josaa_cutoff(institute_type, institute_name))
-        if csv_data:
-            document = InputFile(csv_data, filename="josaa_cutoff.csv")
-            await query.message.reply_document(document)
-        else:
-            await query.edit_message_text(text=f"❌ Sorry, no data was found for {institute_type} - {institute_name}. Please try again later.")
-        await show_main_menu(query.message)
-
-async def send_college_buttons(query, college_list, prefix):
-    keyboard = []
-    for college in college_list:
-        college_parts = college.split(' ')
-        if len(college_parts) >= 2:
-            callback_data = f"{prefix}_{college_parts}"
-            keyboard.append([InlineKeyboardButton(college, callback_data=callback_data)])
-        else:
-            keyboard.append([InlineKeyboardButton(college, callback_data=f"{prefix}_{college}")])
-    keyboard.append([InlineKeyboardButton("⬅️ Back", callback_data='back')])
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    await query.edit_message_text(text=f"🏫 Select a {prefix}:", reply_markup=reply_markup)
-
-def get_random_youtube_video():
-    youtube = build('youtube', 'v3', developerKey=API_KEY)
-    request = youtube.search().list(
-        part='snippet',
-        channelId='UCI5x5XHZnKLO4DTTMqUb0ng',
-        maxResults=50,
-        order='date'
-    )
-    response = request.execute()
-    videos = [item['id']['videoId'] for item in response['items'] if item['id']['kind'] == 'youtube#video']
-    video_id = random.choice(videos)
-    return f"https://www.youtube.com/watch?v={video_id}"
-
-async def scrape_josaa_cutoff(institute_type, institute_name):
-    """Scrape the cutoff data from JoSAA website for a specific institute and return the CSV data."""
-    cache_key = f"{institute_type}_{institute_name}"
-    if cache_key in cache:
-        return cache[cache_key]
-
-    #chrome_options = webdriver.ChromeOptions()
-    #chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
-    #chrome_options.add_argument("--headless")
-    #chrome_options.add_argument("--disable-dev-shm-usage")
-    #chrome_options.add_argument("--no-sandbox")
-    #driver = webdriver.Chrome()
-    options = webdriver.FirefoxOptions()
-    # Remove the '--headless' argument to run the browser in visible mode
-    options.add_argument('--headless')
-    service = FirefoxService(executable_path=GeckoDriverManager().install())
-    driver = webdriver.Firefox(service=service, options=options)
-    driver.get(JOSAA_URL)
-
-    try:
-        wait = WebDriverWait(driver, 25)
-
-        select_year = driver.find_element(By.XPATH, '//*[@id="ctl00_ContentPlaceHolder1_ddlYear_chosen"]/a')
-        select_year.click()
-        select_year.send_keys('2' + Keys.ENTER)
-
-        time.sleep(2)
-
-
-        select_round = driver.find_element(By.XPATH, '//*[@id="ctl00_ContentPlaceHolder1_ddlroundno_chosen"]/a')
-        select_round.click()
-        select_round.send_keys('6' + Keys.ENTER)
-
-        time.sleep(2)
-
-        select_inst_type = driver.find_element(By.XPATH, '//*[@id="ctl00_ContentPlaceHolder1_ddlInstype_chosen"]/a')
-        select_inst_type.click()
-        inputText = institute_type;
-        select_inst_type.send_keys(inputText + Keys.ENTER)
-
-        time.sleep(2)
-
-        select_inst_name = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_ContentPlaceHolder1_ddlInstitute_chosen"]/a')))
-        select_inst_name.click()
-        select_inst_name.send_keys(institute_name + Keys.ENTER)
-
-        time.sleep(2)
-
-        select_program = wait.until(EC.presence_of_element_located((By.XPATH,'//*[@id="ctl00_ContentPlaceHolder1_ddlBranch_chosen"]/a')))
-        driver.execute_script("arguments.click();", select_program)
-        select_program.send_keys("A" + Keys.ENTER)
-
-        time.sleep(2)
-
-        select_seat_type = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_ContentPlaceHolder1_ddlSeattype_chosen"]/a')))
-        select_seat_type.click()
-        select_seat_type.send_keys("A" + Keys.ENTER)
-
-        time.sleep(2)
-
-        submit_button = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="ctl00_ContentPlaceHolder1_btnSubmit"]')))
-        submit_button.click()
-
-        time.sleep(5)
-
-        table = wait.until(EC.presence_of_element_located((By.XPATH, "/html/body/form/div[3]/div[2]")))
-
-        driver.execute_script("arguments[0].scrollIntoView(true);", table)
-
-        rows = table.find_elements(By.TAG_NAME, "tr")
-        data = []
-        for row in rows:
-            cells = row.find_elements(By.TAG_NAME, "td")
-            row_data = [cell.text for cell in cells]
-            data.append(row_data)
-
-        if data:
-            # Write the data to a CSV file in-memory
-            csv_buffer = StringIO()
-            writer = csv.writer(csv_buffer)
-            writer.writerows(data)
-            return csv_buffer.getvalue()
-        else:
-            logger.error(f"No data found in the table for {institute_type} - {institute_name}")
-            logger.info(f"Current URL: {driver.current_url}")
-            logger.info(f"Page source: {driver.page_source}")
-            return None
-
-    except Exception as e:
-        logger.error(f"Error occurred while scraping JOSAA cutoff data: {e}")
-        logger.info(f"Current URL: {driver.current_url}")
-        logger.info(f"Page source: {driver.page_source}")
-        return None
-    finally:
-        driver.quit()
+        await query.message.reply_text("Invalid option. Please choose again.")
 
 async def get_josaa_cutoff(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Get the JOSAA cutoff data and send the CSV to the user."""
-    institute_type = "Indian Institute of Technology"
-    institute_name = "IIT Bombay"
-
-    await update.message.reply_text(text="🔍 Processing your request, please wait...")
-
-    csv_data = await scrape_josaa_cutoff(institute_type, institute_name)
-    if csv_data:
-        document = InputFile(csv_data, filename="josaa_cutoff.csv")
-        await update.message.reply_document(document)
+    institute_type = update.message.text.split(' ').lower()
+    if institute_type == '/iitocr':
+        url = MOTIVATIONKAKSHA_URL
+    elif institute_type == '/nitocr':
+        url = MOTIVATIONKAKSHA_URL
+    elif institute_type == '/iiitocr':
+        url = MOTIVATIONKAKSHA_URL
+    elif institute_type == '/gftiocr':
+        url = MOTIVATIONKAKSHA_URL
     else:
-        await update.message.reply_text(text=f"❌ Sorry, no data was found for {institute_type} - {institute_name}. Please try again later.")
+        await update.message.reply_text(text="Invalid command. Please use /iitocr, /nitocr, /iiitocr, or /gftiocr.")
+        return
+    await update.message.reply_text(text=f"Checkout cutoff on this website: {url}")
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /help is issued."""
@@ -363,7 +231,7 @@ async def notify(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a notification message to all registered users and groups."""
     user_id = update.effective_user.id
     if user_id == 1268179255:
-        message = update.message.text.split(' ', 1)[1]
+        message = update.message.text.split(' ', 1)
         await send_notification_to_users(context, message)
         await send_notification_to_groups(context, message)
     else:
@@ -381,7 +249,7 @@ async def feedback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_id = update.effective_user.id
     user_first_name = update.effective_user.first_name
     user_username = update.effective_user.username
-    feedback_text = update.message.text.split(' ', 1)[1]
+    feedback_text = update.message.text.split(' ', 1)
     feedback_message = f"📝 Feedback from {user_first_name} (@{user_username}, ID: {user_id}):\n\n{feedback_text}"
     await context.bot.send_message(chat_id="1268179255", text=feedback_message)
     await update.message.reply_text("📨 Your feedback has been sent to the bot owner. Thank you!")
